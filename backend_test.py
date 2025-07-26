@@ -245,8 +245,8 @@ class BackendTester:
                 return
         
         try:
-            # Test upvote
-            upvote_response = requests.post(f"{API_BASE}/community-posts/{post_id}/vote", json={"vote_type": "upvote"}, timeout=10)
+            # Test upvote using query parameters
+            upvote_response = requests.post(f"{API_BASE}/community-posts/{post_id}/vote", params={"vote_type": "upvote"}, timeout=10)
             if upvote_response.status_code == 200:
                 upvote_data = upvote_response.json()
                 if "upvoted successfully" in upvote_data.get("message", "").lower():
@@ -256,8 +256,8 @@ class BackendTester:
             else:
                 self.log_test("POST /api/community-posts/{post_id}/vote (upvote)", False, f"Status code: {upvote_response.status_code}")
             
-            # Test downvote
-            downvote_response = requests.post(f"{API_BASE}/community-posts/{post_id}/vote", json={"vote_type": "downvote"}, timeout=10)
+            # Test downvote using query parameters
+            downvote_response = requests.post(f"{API_BASE}/community-posts/{post_id}/vote", params={"vote_type": "downvote"}, timeout=10)
             if downvote_response.status_code == 200:
                 downvote_data = downvote_response.json()
                 if "downvoted successfully" in downvote_data.get("message", "").lower():
