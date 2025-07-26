@@ -236,7 +236,7 @@ async def get_manifestos(party: Optional[str] = None, category: Optional[str] = 
                 "description": "Monthly allowance of ₹1500 for unemployed youth with degrees",
                 "category": "Employment",
                 "fulfilled": False,
-                "evidence_url": null,
+                "evidence_url": None,
                 "one_minute_explanation": "DMK promised unemployment allowance during elections but implementation is still pending. Youth are waiting for this scheme to be rolled out."
             }
         ]
