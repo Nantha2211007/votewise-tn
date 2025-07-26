@@ -29,7 +29,7 @@ function App() {
 
   const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
-  // Translations
+  // Translations with full content translation
   const translations = {
     english: {
       appTitle: 'VoteWise TN',
@@ -167,11 +167,85 @@ function App() {
         error: 'தரவு ஏற்றுவதில் பிழை',
         noData: 'தரவு இல்லை',
         anonymous: 'அநாமதேய'
+      },
+      // Tamil content translations
+      parties: {
+        'DMK': 'திமுக',
+        'AIADMK': 'அதிமுக',
+        'BJP': 'பாஜக',
+        'Congress': 'காங்கிரஸ்'
+      },
+      categories: {
+        'Transport': 'போக்குவரத்து',
+        'Social Welfare': 'சமூக நலன்',
+        'Education': 'கல்வி',
+        'Healthcare': 'சுகாதாரம்',
+        'Agriculture': 'விவசாயம்',
+        'Employment': 'வேலைவாய்ப்பு'
       }
     }
   };
 
   const t = currentLanguage ? translations[currentLanguage] : translations.english;
+
+  // Helper function to translate content based on language
+  const translateContent = (content, type) => {
+    if (currentLanguage === 'tamil') {
+      switch (type) {
+        case 'party':
+          return t.parties[content] || content;
+        case 'category':
+          return t.categories[content] || content;
+        case 'name':
+          // Tamil name translations for candidates
+          const nameTranslations = {
+            'Arjun Kumar': 'அர்ஜுன் குமார்',
+            'Priya Sharma': 'பிரியா சர்மா',
+            'Rajesh Natarajan': 'ராஜேஷ் நடராஜன்',
+            'Meera Devi': 'மீரா தேவி',
+            'Karthik Subramanian': 'கார்த்திக் சுப்ரமணியன்',
+            'Lakshmi Narayan': 'லக்ஷ்மி நாராயணன்',
+            'Suresh Babu': 'சுரேஷ் பாபு',
+            'Kavitha Raman': 'கவிதா ராமன்',
+            'Murugan Selvam': 'முருகன் செல்வம்',
+            'Anitha Kumari': 'அனிதா குமாரி'
+          };
+          return nameTranslations[content] || content;
+        case 'manifesto_title':
+          // Tamil manifesto title translations
+          const manifestoTranslations = {
+            'Free Bus Travel for Women': 'பெண்களுக்கு இலவச பேருந்து பயணம்',
+            '₹1000 Monthly Allowance for Women': 'பெண்களுக்கு மாதம் ₹1000 உதவித்தொகை',
+            'Free Breakfast Scheme for School Children': 'பள்ளி குழந்தைகளுக்கு இலவச காலை உணவு திட்டம்',
+            'Free Laptop for Students': 'மாணவர்களுக்கு இலவச மடிக்கணினி',
+            'Amma Canteens': 'அம்மா கேன்டீன்கள்',
+            'Double Farmers Income': 'விவசாயிகளின் வருமானம் இரட்டிப்பு',
+            'National Digital Health Mission': 'தேசிய டிஜிட்டல் சுகாதார பணி',
+            'Unemployment Allowance': 'வேலையில்லாத இளைஞர்களுக்கு உதவித்தொகை',
+            'NYAY Scheme': 'என்யாய் திட்டம்',
+            'Gold for Marriage': 'திருமணத்திற்கு தங்கம்'
+          };
+          return manifestoTranslations[content] || content;
+        case 'education':
+          const educationTranslations = {
+            'M.A. Political Science': 'அரசியல் அறிவியலில் முதுகலை',
+            'B.A. Economics': 'பொருளாதாரத்தில் இளங்கலை',
+            'MBA': 'எம்.பி.ஏ',
+            'M.Sc. Agriculture': 'விவசாயத்தில் முதுகலை',
+            'B.E. Civil Engineering': 'சிவில் பொறியியலில் இளங்கலை',
+            'M.A. Tamil Literature': 'தமிழ் இலக்கியத்தில் முதுகலை',
+            'B.Com': 'வணிகவியலில் இளங்கலை',
+            'M.A. History': 'வரலாற்றில் முதுகலை',
+            'M.Sc. Physics': 'இயற்பியலில் முதுகலை',
+            'B.E. Computer Science': 'கணினி அறிவியலில் இளங்கலை'
+          };
+          return educationTranslations[content] || content;
+        default:
+          return content;
+      }
+    }
+    return content;
+  };
 
   // Language Selection Component
   const renderLanguageSelection = () => (
@@ -179,8 +253,8 @@ function App() {
       <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 max-w-md w-full text-center">
         <div className="mb-8">
           <img 
-            src="https://images.unsplash.com/photo-1708346561250-ea0f8b54bc1c" 
-            alt="Tamil Nadu Culture"
+            src="https://images.unsplash.com/photo-1600336646969-bba1870557d1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxlbGVjdGlvbiUyMGluayUyMGZpbmdlcnxlbnwwfHx8fDE3NTM1Mzk1NDh8MA&ixlib=rb-4.1.0&q=85" 
+            alt="Election Voting"
             className="w-32 h-32 mx-auto rounded-full object-cover mb-6 shadow-lg"
           />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -367,7 +441,7 @@ function App() {
     ? factChecks.filter(fc => fc.verdict !== 'Unverified')
     : factChecks;
 
-  // Get unique values for filters
+  // Get unique values for filters with translations
   const parties = [...new Set(candidates.map(c => c.party))];
   const categories = [...new Set(manifestos.map(m => m.category))];
   const verdicts = ['True', 'False', 'Misleading', 'Unverified'];
@@ -434,8 +508,12 @@ function App() {
             <div key={candidate.candidate_id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{candidate.name}</h3>
-                  <p className="text-gray-600">{candidate.constituency} • {candidate.party}</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    {translateContent(candidate.name, 'name')}
+                  </h3>
+                  <p className="text-gray-600">
+                    {candidate.constituency} • {translateContent(candidate.party, 'party')}
+                  </p>
                 </div>
                 {candidate.incumbent && (
                   <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium mt-2 md:mt-0 self-start">
@@ -447,11 +525,11 @@ function App() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">{t.candidatesTab.age}:</span>
-                  <p className="text-gray-900">{candidate.age} years</p>
+                  <p className="text-gray-900">{candidate.age} {currentLanguage === 'tamil' ? 'வயது' : 'years'}</p>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">{t.candidatesTab.education}:</span>
-                  <p className="text-gray-900">{candidate.education}</p>
+                  <p className="text-gray-900">{translateContent(candidate.education, 'education')}</p>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">{t.candidatesTab.criminal}:</span>
@@ -481,7 +559,7 @@ function App() {
         >
           <option value="">{t.manifestosTab.allParties}</option>
           {parties.map(party => (
-            <option key={party} value={party}>{party}</option>
+            <option key={party} value={party}>{translateContent(party, 'party')}</option>
           ))}
         </select>
         
@@ -492,7 +570,7 @@ function App() {
         >
           <option value="">{t.manifestosTab.allCategories}</option>
           {categories.map(category => (
-            <option key={category} value={category}>{category}</option>
+            <option key={category} value={category}>{translateContent(category, 'category')}</option>
           ))}
         </select>
         
@@ -510,7 +588,7 @@ function App() {
       ) : (
         <div className="grid gap-6">
           {filteredManifestos.map(manifesto => (
-            <ManifestoCard key={manifesto.promise_id} manifesto={manifesto} t={t} />
+            <ManifestoCard key={manifesto.promise_id} manifesto={manifesto} t={t} translateContent={translateContent} />
           ))}
         </div>
       )}
@@ -709,8 +787,8 @@ function App() {
             
             <div className="lg:w-1/2">
               <img 
-                src="https://images.unsplash.com/photo-1708346561250-ea0f8b54bc1c" 
-                alt="Tamil Nadu Temple Architecture"
+                src="https://images.unsplash.com/photo-1600336646969-bba1870557d1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxlbGVjdGlvbiUyMGluayUyMGZpbmdlcnxlbnwwfHx8fDE3NTM1Mzk1NDh8MA&ixlib=rb-4.1.0&q=85" 
+                alt="Election Voting"
                 className="w-full h-80 object-cover rounded-lg shadow-2xl"
               />
             </div>
@@ -762,7 +840,7 @@ function App() {
 }
 
 // Component for manifesto cards with expand/collapse functionality
-function ManifestoCard({ manifesto, t }) {
+function ManifestoCard({ manifesto, t, translateContent }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getFulfilledColor = (fulfilled) => {
@@ -781,8 +859,12 @@ function ManifestoCard({ manifesto, t }) {
     <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">{manifesto.title}</h3>
-          <p className="text-gray-600 mb-2">{manifesto.party} • {manifesto.category}</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">
+            {translateContent(manifesto.title, 'manifesto_title')}
+          </h3>
+          <p className="text-gray-600 mb-2">
+            {translateContent(manifesto.party, 'party')} • {translateContent(manifesto.category, 'category')}
+          </p>
         </div>
         <span className={`px-3 py-1 rounded-full text-sm font-medium ${getFulfilledColor(manifesto.fulfilled)} ml-0 md:ml-4 mb-3 md:mb-0 self-start`}>
           {getFulfilledText(manifesto.fulfilled)}
