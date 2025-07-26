@@ -3,7 +3,7 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [currentLanguage, setCurrentLanguage] = useState('english');
+  const [currentLanguage, setCurrentLanguage] = useState(null); // null initially for language selection
   const [activeTab, setActiveTab] = useState('candidates');
   const [loading, setLoading] = useState(false);
   
@@ -34,6 +34,12 @@ function App() {
     english: {
       appTitle: 'VoteWise TN',
       tagline: 'Make Informed Decisions. Empower Your Vote.',
+      languageSelection: {
+        title: 'Welcome to VoteWise TN',
+        subtitle: 'Choose your preferred language',
+        selectEnglish: 'Continue in English',
+        selectTamil: 'தமிழில் தொடரவும்'
+      },
       tabs: {
         candidates: 'Candidates',
         manifestos: 'Manifestos', 
@@ -97,6 +103,12 @@ function App() {
     tamil: {
       appTitle: 'வோட்வைஸ் TN',
       tagline: 'தகவலறிந்த முடிவுகள் எடுங்கள். உங்கள் வாக்கை வலுப்படுத்துங்கள்.',
+      languageSelection: {
+        title: 'வோட்வைஸ் TN க்கு வரவேற்கிறோம்',
+        subtitle: 'உங்கள் விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்',
+        selectEnglish: 'Continue in English',
+        selectTamil: 'தமிழில் தொடரவும்'
+      },
       tabs: {
         candidates: 'வேட்பாளர்கள்',
         manifestos: 'தேர்தல் அறிக்கைகள்',
@@ -159,7 +171,47 @@ function App() {
     }
   };
 
-  const t = translations[currentLanguage];
+  const t = currentLanguage ? translations[currentLanguage] : translations.english;
+
+  // Language Selection Component
+  const renderLanguageSelection = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-700 to-red-600 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 max-w-md w-full text-center">
+        <div className="mb-8">
+          <img 
+            src="https://images.unsplash.com/photo-1708346561250-ea0f8b54bc1c" 
+            alt="Tamil Nadu Culture"
+            className="w-32 h-32 mx-auto rounded-full object-cover mb-6 shadow-lg"
+          />
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome to VoteWise TN
+          </h1>
+          <h2 className="text-xl font-semibold text-gray-700 mb-1">
+            வோட்வைஸ் TN க்கு வரவேற்கிறோம்
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Choose your preferred language<br/>
+            உங்கள் விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்
+          </p>
+        </div>
+        
+        <div className="space-y-4">
+          <button
+            onClick={() => setCurrentLanguage('english')}
+            className="w-full bg-blue-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors duration-200 shadow-md"
+          >
+            Continue in English
+          </button>
+          <button
+            onClick={() => setCurrentLanguage('tamil')}
+            className="w-full bg-red-600 text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-red-700 transition-colors duration-200 shadow-md"
+          >
+            தமிழில் தொடரவும்
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   // API calls
   const fetchConstituencies = async () => {
@@ -261,37 +313,44 @@ function App() {
 
   // Initialize data on mount
   useEffect(() => {
-    fetchConstituencies();
-    fetchCandidates();
-    fetchManifestos();
-    fetchFactChecks();
-    fetchCommunityPosts();
-  }, []);
+    if (currentLanguage) {
+      fetchConstituencies();
+      fetchCandidates();
+      fetchManifestos();
+      fetchFactChecks();
+      fetchCommunityPosts();
+    }
+  }, [currentLanguage]);
 
   // Update data when filters change
   useEffect(() => {
-    if (activeTab === 'candidates') {
+    if (activeTab === 'candidates' && currentLanguage) {
       fetchCandidates(selectedConstituency);
     }
-  }, [selectedConstituency, activeTab]);
+  }, [selectedConstituency, activeTab, currentLanguage]);
 
   useEffect(() => {
-    if (activeTab === 'manifestos') {
+    if (activeTab === 'manifestos' && currentLanguage) {
       fetchManifestos(selectedParty, selectedCategory);
     }
-  }, [selectedParty, selectedCategory, activeTab]);
+  }, [selectedParty, selectedCategory, activeTab, currentLanguage]);
 
   useEffect(() => {
-    if (activeTab === 'factcheck') {
+    if (activeTab === 'factcheck' && currentLanguage) {
       fetchFactChecks(selectedVerdict);
     }
-  }, [selectedVerdict, activeTab]);
+  }, [selectedVerdict, activeTab, currentLanguage]);
 
   useEffect(() => {
-    if (activeTab === 'community') {
+    if (activeTab === 'community' && currentLanguage) {
       fetchCommunityPosts(selectedConstituency);
     }
-  }, [selectedConstituency, activeTab]);
+  }, [selectedConstituency, activeTab, currentLanguage]);
+
+  // Show language selection if no language is chosen
+  if (!currentLanguage) {
+    return renderLanguageSelection();
+  }
 
   // Filter data based on search
   const filteredCandidates = candidates.filter(candidate =>
@@ -354,7 +413,7 @@ function App() {
           <option value="">{t.candidatesTab.allConstituencies}</option>
           {constituencies.map(constituency => (
             <option key={constituency.constituency_id} value={constituency.name}>
-              {constituency.name}
+              {constituency.name} ({constituency.district})
             </option>
           ))}
         </select>
@@ -545,7 +604,7 @@ function App() {
             <option value="">{t.candidatesTab.selectConstituency}</option>
             {constituencies.map(constituency => (
               <option key={constituency.constituency_id} value={constituency.name}>
-                {constituency.name}
+                {constituency.name} ({constituency.district})
               </option>
             ))}
           </select>
@@ -632,42 +691,26 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+      <div className="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white">
         <div className="container mx-auto px-4 py-16">
           <div className="flex flex-col lg:flex-row items-center">
             <div className="lg:w-1/2 lg:pr-8 mb-8 lg:mb-0">
               <h1 className="text-4xl lg:text-6xl font-bold mb-4">{t.appTitle}</h1>
               <p className="text-xl lg:text-2xl mb-8">{t.tagline}</p>
               
-              {/* Language Toggle */}
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => setCurrentLanguage('english')}
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                    currentLanguage === 'english' 
-                      ? 'bg-white text-blue-600' 
-                      : 'bg-blue-500 text-white hover:bg-blue-400'
-                  }`}
-                >
-                  English
-                </button>
-                <button
-                  onClick={() => setCurrentLanguage('tamil')}
-                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                    currentLanguage === 'tamil' 
-                      ? 'bg-white text-blue-600' 
-                      : 'bg-blue-500 text-white hover:bg-blue-400'
-                  }`}
-                >
-                  தமிழ்
-                </button>
-              </div>
+              {/* Language change option */}
+              <button
+                onClick={() => setCurrentLanguage(null)}
+                className="bg-white bg-opacity-20 text-white px-6 py-3 rounded-lg font-medium hover:bg-opacity-30 transition-colors"
+              >
+                {currentLanguage === 'english' ? 'தமிழில் மாற்று' : 'Change to English'}
+              </button>
             </div>
             
             <div className="lg:w-1/2">
               <img 
-                src="https://images.unsplash.com/photo-1597058712635-3182d1eacc1e" 
-                alt="Indian Democracy"
+                src="https://images.unsplash.com/photo-1708346561250-ea0f8b54bc1c" 
+                alt="Tamil Nadu Temple Architecture"
                 className="w-full h-80 object-cover rounded-lg shadow-2xl"
               />
             </div>
@@ -688,8 +731,8 @@ function App() {
                 }}
                 className={`whitespace-nowrap px-4 py-2 font-medium border-b-2 transition-colors ${
                   activeTab === key
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-700 hover:text-blue-600 hover:border-blue-300'
+                    ? 'border-red-500 text-red-600'
+                    : 'border-transparent text-gray-700 hover:text-red-600 hover:border-red-300'
                 }`}
               >
                 {label}
