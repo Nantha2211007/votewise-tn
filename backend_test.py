@@ -206,14 +206,14 @@ class BackendTester:
     def test_community_posts_create(self):
         """Test POST /api/community-posts"""
         try:
-            # Create a test post
-            test_post_data = {
+            # Create a test post using query parameters
+            params = {
                 "constituency": "Chennai Central",
                 "title": "Test Community Post",
                 "content": "This is a test post to verify the API is working correctly."
             }
             
-            response = requests.post(f"{API_BASE}/community-posts", json=test_post_data, timeout=10)
+            response = requests.post(f"{API_BASE}/community-posts", params=params, timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 if "message" in data and "post_id" in data:
